@@ -17,8 +17,9 @@
 	<c:forEach var="user" items="${users}">
 		<tr>
 			<td>${user}</td>
-
 			<td><a href="/users/${user}">Details</a></td>
+			<td><a href="/user/delete/${user}">Delete</a></td>
+			<td><a href="/user/update/${user}">Update</a></td>
 		</tr>
 	</c:forEach>
 </table>
@@ -28,9 +29,6 @@
 
 <button class="btn btn-primary" onclick="location.href='${addUserFormUrl}'">Add user</button>
 <button class="btn btn-primary" onclick="location.href='${searchUserFormUrl}'">Search user</button>
-
-
-
 
 </body>
 </html>

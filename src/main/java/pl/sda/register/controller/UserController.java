@@ -3,9 +3,7 @@ package pl.sda.register.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import pl.sda.register.exception.DuplicatedUsernameException;
 import pl.sda.register.model.User;
-import pl.sda.register.repository.UserRepository;
 import pl.sda.register.service.UserService;
 
 @Controller
@@ -18,9 +16,16 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ModelAndView usersListView(@RequestParam(required = false) String firstName, @RequestParam(required = false) boolean matchExact) {
+    public ModelAndView usersListView(@RequestParam(required = false) String firstName,
+                                      @RequestParam(required = false) boolean matchExact) {
         ModelAndView modelAndView = new ModelAndView("users");
         modelAndView.addObject("users", userService.findAllUserNames(firstName, matchExact));
+        return modelAndView;
+    }
+
+    @GetMapping("/user/search")
+    public ModelAndView searchUserByFirstNameView() {
+        ModelAndView modelAndView = new ModelAndView("search");
         return modelAndView;
     }
 
@@ -37,17 +42,31 @@ public class UserController {
         modelAndView.addObject("user", new User());
         return modelAndView;
     }
-    @GetMapping("/user/search")
-    public ModelAndView searchUserByFirstNameView(){
-        ModelAndView modelAndView = new ModelAndView("search");
-        return modelAndView;
-    }
 
     @PostMapping("/user")
     public String addUser(@ModelAttribute User user) {
-
         userService.addUser(user);
-        //TODO: task is to add user to repository
         return "redirect:/users";
+    }
+
+    @GetMapping("/user/delete/{username}")
+    public String deleteUser(@PathVariable String username) {
+        userService.deleteUser(username);
+        return "redirect:/users";
+    }
+
+    @GetMapping("/user/update/{username}")
+    public ModelAndView updateUserView(@PathVariable String username) {
+        ModelAndView modelAndView = new ModelAndView("addUser");
+        User foundUser = userService.findUserByUserName(username);
+        modelAndView.addObject("user", foundUser);
+        modelAndView.addObject("update", true);
+        return modelAndView;
+    }
+
+    @PostMapping("/user/update")
+    public String updateUser(@ModelAttribute User user) {
+        userService.updateUser(user);
+        return "redirect:/users/" + user.getUsername();
     }
 }

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Repository;
 import pl.sda.register.exception.DuplicatedUsernameException;
 import pl.sda.register.exception.UserNotFoundException;
 import pl.sda.register.model.User;
-import pl.sda.register.service.UserService;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,8 +13,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public class UserRepository {
-
-    UserService userService;
 
     private Set<User> users = initializeUsers();
 
@@ -27,7 +24,7 @@ public class UserRepository {
         if (firstName == null) {
             return users.stream().map(User::getUsername).collect(Collectors.toSet());
         }
-        if (matchExact == true) {
+        if (matchExact) {
             return users.stream()
                     .filter(user -> user.getFirstName().equals(firstName))
                     .map(User::getUsername)
@@ -53,11 +50,25 @@ public class UserRepository {
         if (any.isPresent()) {
             throw new DuplicatedUsernameException("User with username: " + user.getUsername() + " already exists");
         }
+        //ALTERNATIVE WAY
 //        for (User actualUser : users) {
 //            if (actualUser.getUsername().equals(user.getUsername())) {
 //                throw new DuplicatedUsernameException("User with username: " + user.getUsername() + " already exists");
 //            }
 //        }
+        users.add(user);
+    }
+
+    public void deleteUser(String username) {
+        users.stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findAny()
+                .ifPresent(user -> users.remove(user));
+    }
+
+    public void updateUser(User user) {
+        User foundUser = findUserByUsername(user.getUsername());
+        users.remove(foundUser);
         users.add(user);
     }
 }
